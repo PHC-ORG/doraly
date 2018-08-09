@@ -31,13 +31,15 @@
 ?>
 
 
+
 <script>
 
 		window.onload = function () {
 
 				var chart = new CanvasJS.Chart("chartContainer", {
+					zoomEnabled: true,
 					title: {
-						text: "Total cars by year"
+						text: "Total cars by years"
 					},
 					theme: "light2",
 					animationEnabled: true,
@@ -52,14 +54,14 @@
 						type: "stackedColumn",
 						name: "Incoming",
 						showInLegend: true,
-						yValueFormatString: "#,##0 cars",
-						dataPoints: <?php echo json_encode($dataPoints1, JSON_NUMERIC_CHECK); ?>
+						yValueFormatString: "#0 cars",
+						dataPoints: <?php echo json_encode($GLOBALS['dataPoints1'], JSON_NUMERIC_CHECK); ?>
 					},{
 						type: "stackedColumn",
 						name: "Outgoing",
 						showInLegend: true,
-						yValueFormatString: "#,##0 cars",
-						dataPoints: <?php echo json_encode($dataPoints2, JSON_NUMERIC_CHECK); ?>
+						yValueFormatString: "#0 cars",
+						dataPoints: <?php echo json_encode($GLOBALS['dataPoints2'], JSON_NUMERIC_CHECK); ?>
 					}]
 				});
 

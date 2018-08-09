@@ -39,11 +39,11 @@
             <br>
             <label class="labelDP" for="from">from</label>
             <br>
-            <input type="text" id="from" name="from" class="filtru-isb" value="{{$date[3]}}" autocomplete="off">
+            <input type="text" id="from" name="from" class="filtru-isb" value="{{$GLOBALS['datadl']}}" autocomplete="off">
             <br>
             <label class="labelDP" for="to">to</label>
             <br>
-            <input type="text" id="to" name="to" class="filtru-isb" value="{{$date[4]}}" autocomplete="off">
+            <input type="text" id="to" name="to" class="filtru-isb" value="{{$GLOBALS['datal']}}" autocomplete="off">
             <br>
             <br>
             <label class="filtru-l">Time:</label>
@@ -151,8 +151,18 @@
             <br>
             <br>
             <button type="submit" class="filtru-isb">Select</button>
+            <br>
+            {{$GLOBALS['intervalcond']}}
+            <br>
+            {{$GLOBALS['lim_ore']}}
+            <br>
+            {{$GLOBALS['lim_luna']}}
+            <br>
+            {{$GLOBALS['lim_an']}}
 
           </form>
+
+
 
 
 
@@ -170,11 +180,20 @@
 		         echo '<div id="chartContainer" class="charts"></div>';
 	          }
 
-	        if ($date[0] == NULL && $date[1] == 'an' && $date[2] == NULL) {
-	           include '../resources/views/tools/storagechartsYears.blade.php';
+	        if ($date[0] == NULL && $date[1] == 'ore' && $date[2] == NULL) {
+	           include '../resources/views/tools/storagechartsbars.blade.php';
 	           echo '<div id="chartContainer" class="charts"></div>';
 	          }
 
+            if ($date[0] != NULL) {
+  		         include '../resources/views/tools/storagecharts.blade.php';
+  		         echo '<div id="chartContainer" class="charts"></div>';
+  	          }
+
+              if ($date[1] == 'ore') {
+    	           include '../resources/views/tools/storagechartsbars.blade.php';
+    	           echo '<div id="chartContainer" class="charts"></div>';
+    	          }
        ?>
 
 

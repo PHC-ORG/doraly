@@ -12,6 +12,7 @@ use App\Camera6;
 use App\Camera7;
 use App\Camera8;
 use DB;
+use Illuminate\Support\Facades\Redirect;
 
 class CamerasController extends Controller
 {
@@ -22,245 +23,482 @@ class CamerasController extends Controller
      */
     public function index()
     {
-      $dela = request()->get('from');
-      $la = request()->get('to');
+
+
+
+      $datadela = request()->get('from');
+      $datala = request()->get('to');
       $direction = request()->get('dropDirection');
       $timedela = request()->get('dropTimeFrom');
       $timela = request()->get('dropTimeTo');
       $type = request()->get('dropType');
       $location = request()->get('dropLocation');
-      $date = [$direction, $type, $location, $dela, $la, $timedela, $timela];
+
+      global $datadl;
+      global $datal;
+
+
+
+      $datadl = $datadela;
+      $datal = $datala;
+
+      global $intervalcond;
+      global $lim_ore;
+      global $lim_luna;
+      global $lim_an;
+
+
+
+
+
+
+
+
+      $dela = $datadela . " " . $timedela;
+      $la = $datala . " " . $timela;
+
+      $date = [$direction, $type, $location, $dela, $la, $timedela, $timela, $datadela, $datala];
+
+      $ora_const = 60*60;
+      $zi_const = $ora_const*24;
+      $saptamana_const = $zi_const*7;
+      $an_nb_const = $zi_const*365;
+      $an_b_const = $zi_const*366;
+      $an_const = 0;
+
+      $intervalcond = strtotime($datala) - strtotime($datadela);
+      $lim_ore = 60*60*24*7;
+      $lim_luna = 60*60*24*92;
+      $lim_an = 60*60*24*366;
+
+      $interval = strtotime($la) - strtotime($dela) + 1;
+
+      // global $nr_ore_interval;
+      // global $nr_zile_interval;
       global $intrate;
       global $iesite;
+      global $dataPoints;
+      global $dataPoints1;
+      global $dataPoints2;
+
+
+
+      $nr_ore_interval = $interval / $ora_const;
+      $nr_zile_interval = $interval / $zi_const;
+      $nr_week_interval = $interval / strtotime("1 week");
+      $nr_month_interval = $interval / strtotime("1 month");
+      $nr_3month_interval = $interval / strtotime("3 month");
+      $nr_6month_interval = $interval / strtotime("6 month");
+      $nr_year_interval = $interval / strtotime("1 year");
+
       $crview = DB::statement('CREATE OR REPLACE VIEW cameraview as SELECT  * FROM camera1s UNION SELECT * FROM camera2s UNION SELECT * FROM camera3s UNION SELECT * FROM camera4s UNION SELECT * FROM camera5s UNION SELECT * FROM camera6s UNION SELECT * FROM camera7s UNION SELECT * FROM camera8s;');
 
-      if($direction == NULL && $type == NULL && $location == NULL && $dela == NULL && $la == NULL && $timedela == NULL && $timela == NULL){
+
+      if($type == "ore" || $type == "zile" || $type == "saptamani"){
+
+
+      if($type == "ore" && $datadela == NULL && $datala == NULL){
+
+          echo "<script>alert('Alegeti un interval de maxim 7 zile!');</script>";
+          return Redirect::to('reports');
+
+
+      }elseif($type == "ore" && $intervalcond > $lim_ore){
+
+          echo "<script>alert('Alegeti un interval de maxim 7 zile!');</script>";
+          return Redirect::to('reports')->with('message', 'Login Failed');
+
+      }elseif($type == "ore" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_ore_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const+$ora_const-1));
+          $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
+    			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+          $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+      }elseif($type == "ore" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && ($timedela != "00:00:00" || $timela != "23:59:59")){
+
+        for($i=0;$i<$nr_ore_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const+$ora_const-1));
+          $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
+    			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+          $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+      }elseif($type == "ore" && $direction == NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_ore_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const+$ora_const-1));
+          $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+    			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+          $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+      }elseif($type == "ore" && $direction == NULL && $location != NULL && $datadela != NULL && $datala != NULL && $timedela != NULL && $timela != NULL){
+
+        for($i=0;$i<$nr_ore_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const+$ora_const-1));
+          $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+    			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+          $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+      }elseif($type == "ore" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_ore_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const+$ora_const-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+      }elseif($type == "ore" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && $timedela != NULL && $timela != NULL){
+
+        for($i=0;$i<$nr_ore_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const+$ora_const-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+      }elseif($type == "ore" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_ore_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const+$ora_const-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+      }elseif($type == "ore" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && $timedela != NULL && $timela != NULL){
+
+        for($i=0;$i<$nr_ore_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$ora_const+$ora_const-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+      }
+
+
+      if($type == "zile" && $datadela == NULL && $datala == NULL){
+
+          echo "<script>alert('Alegeti un interval de maxim 3 luni!');</script>";
+          return Redirect::to('reports');
+
+      }elseif($type == "zile" && $intervalcond > $lim_luna){
+
+          echo "<script>alert('Alegeti un interval de maxim 3 luni!');</script>";
+          return Redirect::to('reports');
+
+      }elseif($type == "zile" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_zile_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const+$zi_const-1));
+          $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
+    			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+          $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+      }elseif($type == "zile" && $direction == NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_zile_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const+$zi_const-1));
+          $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+    			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+          $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+      }elseif($type == "zile" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_zile_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const+$zi_const-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+      }elseif($type == "zile" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_zile_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const+$zi_const-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+      }
+
+
+      if($type == "saptamani" && $datadela == NULL && $datala == NULL){
+
+          echo "<script>alert('Alegeti un interval de maxim un an!');</script>";
+          return Redirect::to('reports');
+
+      }elseif($type == "saptamani" && $intervalcond > $lim_an){
+
+          echo "<script>alert('Alegeti un interval de maxim un an!');</script>";
+          return Redirect::to('reports');
+
+      }elseif($type == "saptamani" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_week_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)-1));
+          $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+          $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+      }elseif($type == "saptamani" && $direction == NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_week_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)-1));
+          $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+          $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+      }elseif($type == "saptamani" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_week_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+      }elseif($type == "saptamani" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_week_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+      }
+
+      }
+
+
+      if($type == "luni" || $type == "trimestre" || $type == "semestre" || $type == "ani"){
+
+        if($type == "luni" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)-1));
+            $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+        }elseif($type == "luni" && $direction == NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)-1));
+            $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+        }elseif($type == "luni" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)-1));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+        }elseif($type == "luni" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)-1));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+        }
+
+
+        if($type == "trimestre" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_3month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)-1));
+            $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+        }elseif($type == "trimestre" && $direction == NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_3month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)-1));
+            $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+        }elseif($type == "trimestre" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_3month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)-1));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+        }elseif($type == "trimestre" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_3month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)-1));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+        }
+
+
+        if($type == "semestre" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_6month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)-1));
+            $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+        }elseif($type == "semestre" && $direction == NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_6month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)-1));
+            $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+        }elseif($type == "semestre" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_6month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)-1));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+        }elseif($type == "semestre" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_6month_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)-1));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+        }
+
+
+        if($type == "ani" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_year_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)-1));
+            $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
+      			$dataPoints1[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+        }elseif($type == "ani" && $direction == NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_year_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)-1));
+            $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+      			$dataPoints1[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);}
+
+        }elseif($type == "ani" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_year_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)-1));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+        }elseif($type == "ani" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_year_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)-1));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+
+        }
+
+      }
+
+
+      if($direction == NULL && $type == NULL && $location == NULL && $datadela == NULL && $datala == NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59")) ){
 
         $car1 = DB::select('SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = "intra"');
         $car2 = DB::select('SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = "iese"');
 
         $intrate = $car1[0]->intrate;
         $iesite = $car2[0]->iesite;
-      }elseif ($direction == NULL && $type == NULL && $location == NULL && $dela == NULL && $la == NULL && $timedela == "00:00:00" && $timela == "23:59:59"){
-        $car1 = DB::select('SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = "intra"');
-        $car2 = DB::select('SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = "iese"');
+
+      }
+
+
+      if($direction == NULL && $type == NULL && $location != NULL && $datadela == NULL && $datala == NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59")) ){
+
+        $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location'");
+        $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location'");
 
         $intrate = $car1[0]->intrate;
         $iesite = $car2[0]->iesite;
+
       }
 
 
 
 
-      // if($direction == NULL && $type == NULL && $location == NULL)
-      // {
-      // $car1 = DB::select('SELECT COUNT(*) as intrate FROM((SELECT * FROM camera1s as i1 WHERE directieCar = "intra") UNION
-      //                         (SELECT * FROM camera2s as i2 WHERE directieCar = "intra") UNION
-      //                         (SELECT * FROM camera3s as i3 WHERE directieCar = "intra") UNION
-      //                         (SELECT * FROM camera4s as i4 WHERE directieCar = "intra") UNION
-      //                         (SELECT * FROM camera5s as i5 WHERE directieCar = "intra") UNION
-      //                         (SELECT * FROM camera6s as i6 WHERE directieCar = "intra") UNION
-      //                         (SELECT * FROM camera7s as i7 WHERE directieCar = "intra") UNION
-      //                         (SELECT * FROM camera8s as i8 WHERE directieCar = "intra")) as intrate');
-      // $car2 = DB::select('SELECT COUNT(*) as iesite FROM((SELECT * FROM camera1s as i1 WHERE directieCar = "iese") UNION
-      //                         (SELECT * FROM camera2s as i2 WHERE directieCar = "iese") UNION
-      //                         (SELECT * FROM camera3s as i3 WHERE directieCar = "iese") UNION
-      //                         (SELECT * FROM camera4s as i4 WHERE directieCar = "iese") UNION
-      //                         (SELECT * FROM camera5s as i5 WHERE directieCar = "iese") UNION
-      //                         (SELECT * FROM camera6s as i6 WHERE directieCar = "iese") UNION
-      //                         (SELECT * FROM camera7s as i7 WHERE directieCar = "iese") UNION
-      //                         (SELECT * FROM camera8s as i8 WHERE directieCar = "iese")) as iesite');
-      // $intrate = $car1[0]->intrate;
-      // $iesite = $car2[0]->iesite;
-      // }
-
-      if($direction == NULL && $type == NULL && $location !=NULL){
-
-      $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location'");
-      $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location'");
-
-      $intrate = $car1[0]->intrate;
-      $iesite = $car2[0]->iesite;
-      }
-
-
-
-        // if($direction == NULL && $type != NULL && $location == NULL)
-        // {
-        //         if($time == 'an')
-        //         {
-        //                 $car1 = DB::select("SELECT (SELECT COUNT(*) as intrate FROM((SELECT * FROM camera1s as pl1 WHERE directieCar = 'intra' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59')
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'intra' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'intra' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59')) as pl) as intrate_2010,
-        //                 (SELECT COUNT(*) as intrate FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'intra' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'intra' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'intra' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59')) as pl) as intrate_2011,
-        //                 (SELECT COUNT(*) as intrate FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'intra' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'intra' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'intra' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59')) as pl) as intrate_2012,
-        //                 (SELECT COUNT(*) as intrate FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'intra' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'intra' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'intra' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59')) as pl) as intrate_2013,
-        //                 (SELECT COUNT(*) as intrate FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'intra' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'intra' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'intra' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59')) as pl) as intrate_2014,
-        //                 (SELECT COUNT(*) as intrate FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'intra' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'intra' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'intra' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59')) as pl) as intrate_2015,
-        //                 (SELECT COUNT(*) as intrate FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'intra' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'intra' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'intra' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59')) as pl) as intrate_2016,
-        //                 (SELECT COUNT(*) as intrate FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'intra' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'intra' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'intra' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59')) as pl) as intrate_2017,
-        //                 (SELECT COUNT(*) as intrate FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'intra' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'intra' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'intra' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'intra' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59')) as pl) as intrate_2018");
-        //
-        //
-        //                 $car2 = DB::select("SELECT (SELECT COUNT(*) as iesite FROM((SELECT * FROM camera1s as pl1 WHERE directieCar = 'iese' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59')
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'iese' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'iese' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2010-01-01 00:00:00' and '2010-12-31 23:59:59')) as pl) as iesite_2010,
-        //                 (SELECT COUNT(*) as iesite FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'iese' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'iese' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'iese' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2011-01-01 00:00:00' and '2011-12-31 23:59:59')) as pl) as iesite_2011,
-        //                 (SELECT COUNT(*) as iesite FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'iese' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'iese' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'iese' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2012-01-01 00:00:00' and '2012-12-31 23:59:59')) as pl) as iesite_2012,
-        //                 (SELECT COUNT(*) as iesite FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'iese' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'iese' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'iese' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2013-01-01 00:00:00' and '2013-12-31 23:59:59')) as pl) as iesite_2013,
-        //                 (SELECT COUNT(*) as iesite FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'iese' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'iese' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'iese' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2014-01-01 00:00:00' and '2014-12-31 23:59:59')) as pl) as iesite_2014,
-        //                 (SELECT COUNT(*) as iesite FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'iese' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'iese' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'iese' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2015-01-01 00:00:00' and '2015-12-31 23:59:59')) as pl) as iesite_2015,
-        //                 (SELECT COUNT(*) as iesite FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'iese' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'iese' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'iese' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2016-01-01 00:00:00' and '2016-12-31 23:59:59')) as pl) as iesite_2016,
-        //                 (SELECT COUNT(*) as iesite FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'iese' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'iese' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'iese' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2017-01-01 00:00:00' and '2017-12-31 23:59:59')) as pl) as iesite_2017,
-        //                 (SELECT COUNT(*) as iesite FROM ((SELECT * FROM camera1s as pl1 WHERE directieCar = 'iese' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera2s as pl2 WHERE directieCar = 'iese' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera3s as pl3 WHERE directieCar = 'iese' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera4s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera5s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera6s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera7s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59') UNION
-        //                 (SELECT * FROM camera8s as pl4 WHERE directieCar = 'iese' AND timestampCar between '2018-01-01 00:00:00' and '2018-12-31 23:59:59')) as pl) as iesite_2018");
-        //
-        //                 global $intrate_2010, $intrate_2011, $intrate_2012, $intrate_2013, $intrate_2014, $intrate_2015, $intrate_2016, $intrate_2017, $intrate_2018;
-        //                 global $iesite_2010, $iesite_2011, $iesite_2012, $iesite_2013, $iesite_2014, $iesite_2015, $iesite_2016, $iesite_2017, $iesite_2018;
-        //                 $intrate_2010 = $car1[0]->intrate_2010;
-        //                 $intrate_2011 = $car1[0]->intrate_2011;
-        //                 $intrate_2012 = $car1[0]->intrate_2012;
-        //                 $intrate_2013 = $car1[0]->intrate_2013;
-        //                 $intrate_2014 = $car1[0]->intrate_2014;
-        //                 $intrate_2015 = $car1[0]->intrate_2015;
-        //                 $intrate_2016 = $car1[0]->intrate_2016;
-        //                 $intrate_2017 = $car1[0]->intrate_2017;
-        //                 $intrate_2018 = $car1[0]->intrate_2018;
-        //
-        //                 $iesite_2010 = $car2[0]->iesite_2010;
-        //                 $iesite_2011 = $car2[0]->iesite_2011;
-        //                 $iesite_2012 = $car2[0]->iesite_2012;
-        //                 $iesite_2013 = $car2[0]->iesite_2013;
-        //                 $iesite_2014 = $car2[0]->iesite_2014;
-        //                 $iesite_2015 = $car2[0]->iesite_2015;
-        //                 $iesite_2016 = $car2[0]->iesite_2016;
-        //                 $iesite_2017 = $car2[0]->iesite_2017;
-        //                 $iesite_2018 = $car2[0]->iesite_2018;
-        //
-        //         }
-        //
-        // }
 
         return view('report')->with('date',$date);
 
