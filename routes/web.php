@@ -14,6 +14,9 @@
 
 Route::resource('reports', 'CamerasController');
 
+Route::resource('profil', 'TestController');
+
+
 Route::get('livecams', function () {
     return view('livecamera');
 });
@@ -22,9 +25,9 @@ Route::get('/', function () {
     return view('login');
 });
 
-Route::get('profil', function () {
-    return view('myprofil');
-});
+// Route::get('profil', function () {
+//     return view('myprofil');
+// });
 
 Route::get('welcome', function () {
     return view('welcome');

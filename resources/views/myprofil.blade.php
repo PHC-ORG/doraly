@@ -21,6 +21,25 @@
 
       <div class="content-page">
 
+
+        {{ Form::open(['action' => 'TestController@index', $filtru->id]) }}
+
+            {{Form::label('typel', 'Type')}}
+
+            {{Form::select('type', ['' => 'All', 'ore' => 'Hours', 'zile' => 'Days', 'saptamani' => 'Weeks', 'luni' => 'Months', 'trimestre' => '3 Months', 'semestre' => '6 Months', 'ani' => 'Years'], '')}}
+
+
+
+            {{Form::date('name', \Carbon\Carbon::now())}}
+
+
+
+            {{Form::submit('Filtreaza')}}
+
+        {{ Form::close() }}
+
+
+
       </div>
 
       <?php include '../resources/views/tools/footer.blade.php';?>

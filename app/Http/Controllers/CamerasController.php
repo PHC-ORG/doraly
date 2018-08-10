@@ -36,8 +36,9 @@ class CamerasController extends Controller
 
       global $datadl;
       global $datal;
+      global $error;
 
-
+      $error = NULL;
 
       $datadl = $datadela;
       $datal = $datala;
@@ -57,7 +58,7 @@ class CamerasController extends Controller
       $dela = $datadela . " " . $timedela;
       $la = $datala . " " . $timela;
 
-      $date = [$direction, $type, $location, $dela, $la, $timedela, $timela, $datadela, $datala];
+
 
       $ora_const = 60*60;
       $zi_const = $ora_const*24;
@@ -85,11 +86,11 @@ class CamerasController extends Controller
 
       $nr_ore_interval = $interval / $ora_const;
       $nr_zile_interval = $interval / $zi_const;
-      $nr_week_interval = $interval / strtotime("1 week");
-      $nr_month_interval = $interval / strtotime("1 month");
-      $nr_3month_interval = $interval / strtotime("3 month");
-      $nr_6month_interval = $interval / strtotime("6 month");
-      $nr_year_interval = $interval / strtotime("1 year");
+      $nr_week_interval = $interval / strtotime("+1 week",0);
+      $nr_month_interval = $interval / strtotime("+1 month",0);
+      $nr_3month_interval = $interval / strtotime("+3 month",0);
+      $nr_6month_interval = $interval / strtotime("+6 month",0);
+      $nr_year_interval = $interval / strtotime("+1 year",0);
 
       $crview = DB::statement('CREATE OR REPLACE VIEW cameraview as SELECT  * FROM camera1s UNION SELECT * FROM camera2s UNION SELECT * FROM camera3s UNION SELECT * FROM camera4s UNION SELECT * FROM camera5s UNION SELECT * FROM camera6s UNION SELECT * FROM camera7s UNION SELECT * FROM camera8s;');
 
@@ -99,14 +100,16 @@ class CamerasController extends Controller
 
       if($type == "ore" && $datadela == NULL && $datala == NULL){
 
-          echo "<script>alert('Alegeti un interval de maxim 7 zile!');</script>";
-          return Redirect::to('reports');
+          $error = 1;
+          echo "<script>alert('Alegeti un interval de maxim 7 zile pentru tipul Hours!');</script>";
+
 
 
       }elseif($type == "ore" && $intervalcond > $lim_ore){
 
-          echo "<script>alert('Alegeti un interval de maxim 7 zile!');</script>";
-          return Redirect::to('reports')->with('message', 'Login Failed');
+          $error = 1;
+          echo "<script>alert('Alegeti un interval de maxim 7 zile pentru tipul Hours!');</script>";
+
 
       }elseif($type == "ore" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
@@ -193,13 +196,15 @@ class CamerasController extends Controller
 
       if($type == "zile" && $datadela == NULL && $datala == NULL){
 
-          echo "<script>alert('Alegeti un interval de maxim 3 luni!');</script>";
-          return Redirect::to('reports');
+          $error = 1;
+          echo "<script>alert('Alegeti un interval de maxim 3 luni pentru tipul Days!');</script>";
+
 
       }elseif($type == "zile" && $intervalcond > $lim_luna){
 
-          echo "<script>alert('Alegeti un interval de maxim 3 luni!');</script>";
-          return Redirect::to('reports');
+          $error = 1;
+          echo "<script>alert('Alegeti un interval de maxim 3 luni pentru tipul Days!');</script>";
+
 
       }elseif($type == "zile" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
@@ -246,20 +251,22 @@ class CamerasController extends Controller
 
       if($type == "saptamani" && $datadela == NULL && $datala == NULL){
 
-          echo "<script>alert('Alegeti un interval de maxim un an!');</script>";
-          return Redirect::to('reports');
+          $error = 1;
+          echo "<script>alert('Alegeti un interval de maxim un an pentru tipul Weeks!');</script>";
+
 
       }elseif($type == "saptamani" && $intervalcond > $lim_an){
 
-          echo "<script>alert('Alegeti un interval de maxim un an!');</script>";
-          return Redirect::to('reports');
+          $error = 1;
+          echo "<script>alert('Alegeti un interval de maxim un an pentru tipul Weeks!');</script>";
+
 
       }elseif($type == "saptamani" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
         for($i=0;$i<$nr_week_interval;$i++){
 
-          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)));
-          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)-1));
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i week", strtotime($dela)));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week",strtotime("+$i week", strtotime($dela)-1)));
           $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
           $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
           $dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -269,8 +276,8 @@ class CamerasController extends Controller
 
         for($i=0;$i<$nr_week_interval;$i++){
 
-          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)));
-          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)-1));
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i week", strtotime($dela)));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week",strtotime("+$i week", strtotime($dela)-1)));
           $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
           $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
           $dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -280,8 +287,8 @@ class CamerasController extends Controller
 
         for($i=0;$i<$nr_week_interval;$i++){
 
-          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)));
-          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)-1));
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i week", strtotime($dela)));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week",strtotime("+$i week", strtotime($dela)-1)));
           $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
           $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -289,8 +296,8 @@ class CamerasController extends Controller
 
         for($i=0;$i<$nr_week_interval;$i++){
 
-          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)));
-          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week", strtotime($dela)-1));
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i week", strtotime($dela)));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week",strtotime("+$i week", strtotime($dela)-1)));
           $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
           $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -305,8 +312,8 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)-1));
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month",strtotime("+$i month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -316,8 +323,8 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)-1));
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month",strtotime("+$i month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -327,8 +334,8 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)-1));
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month",strtotime("+$i month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
             $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -336,8 +343,8 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month", strtotime($dela)-1));
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month",strtotime("+$i month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -348,8 +355,9 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_3month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)-1));
+            $j = 3 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month",strtotime("+$j month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -359,8 +367,9 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_3month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)-1));
+            $j = 3 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month",strtotime("+$j month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -370,8 +379,9 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_3month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)-1));
+            $j = 3 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month",strtotime("+$j month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
             $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -379,8 +389,9 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_3month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month", strtotime($dela)-1));
+            $j = 3 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month",strtotime("+$j month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -391,8 +402,9 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_6month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)-1));
+            $j = 6 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month",strtotime("+$j month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -402,8 +414,9 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_6month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)-1));
+            $j = 6 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month",strtotime("+$j month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -412,9 +425,10 @@ class CamerasController extends Controller
         }elseif($type == "semestre" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
           for($i=0;$i<$nr_6month_interval;$i++){
-
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)-1));
+            
+            $j = 6 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month",strtotime("+$j month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
             $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -422,8 +436,9 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_6month_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month", strtotime($dela)-1));
+            $j = 6 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month",strtotime("+$j month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -434,8 +449,8 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_year_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)-1));
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
       			$dataPoints1[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -445,8 +460,8 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_year_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)-1));
+            $$datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
       			$dataPoints1[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
@@ -456,8 +471,8 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_year_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)-1));
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
             $dataPoints[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -465,8 +480,9 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_year_interval;$i++){
 
-            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)));
-            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year", strtotime($dela)-1));
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));$datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $dataPoints[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
 
@@ -498,9 +514,8 @@ class CamerasController extends Controller
 
 
 
-
-
-        return view('report')->with('date',$date);
+      $date = [$direction, $type, $location, $dela, $la, $timedela, $timela, $datadela, $datala, $error];
+        if($date[9] != NULL){return view('report')->with('date',$date);}else{return view('report')->with('date',$date);}
 
     }
 

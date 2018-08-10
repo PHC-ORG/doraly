@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="<?php echo asset('css/style.css')?>" type="text/css">
 
         <script type="text/javascript" src="/js/canvasjs.js"></script>
+        <script type="text/javascript" src="/js/raports.js"></script>
 
         <link rel="stylesheet" href="jquery-ui-1.12.1.custom/jquery-ui.css">
 
@@ -34,6 +35,22 @@
 
 
           <form action="{{ action('CamerasController@index') }}">
+
+            <br>
+            <label class="filtru-l">Type</label>
+            <br>
+            <select name="dropType" id="dropType" class="filtru-isb">
+              <option value="" selected="selected">All</option>
+              <option value="ore">Hours</option>
+              <option value="zile">Days</option>
+              <option value="saptamani">Weeks</option>
+              <option value="luni">Months</option>
+              <option value="trimestre">3 Months</option>
+              <option value="semestre">6 Months</option>
+              <option value="ani">Years</option>
+            </select>
+            <br>
+            <br>
 
             <label class="filtru-l">Date:</label>
             <br>
@@ -107,20 +124,6 @@
             </select>
             <br>
             <br>
-            <label class="filtru-l">Type</label>
-            <br>
-            <select name="dropType" id="dropType" class="filtru-isb">
-              <option value="" selected="selected">All</option>
-              <option value="ore">Hours</option>
-              <option value="zile">Days</option>
-              <option value="saptamani">Weeks</option>
-              <option value="luni">Months</option>
-              <option value="trimestre">3 Months</option>
-              <option value="semestre">6 Months</option>
-              <option value="ani">Years</option>
-            </select>
-            <br>
-            <br>
             <label class="filtru-l">Location</label>
             <br>
             <select name="dropLocation" id="dropLocation" class="filtru-isb">
@@ -159,6 +162,20 @@
             {{$GLOBALS['lim_luna']}}
             <br>
             {{$GLOBALS['lim_an']}}
+            <br>
+            {{strtotime("+1 month",$GLOBALS['lim_an'])}}
+            <br>
+            {{strtotime("+3 month",$GLOBALS['lim_an'])}}
+            <br>
+            {{strtotime("+6 month",$GLOBALS['lim_an'])}}
+            <br>
+            {{$GLOBALS['intervalcond']/strtotime("+1 year",0)}}
+            <br>
+            {{strtotime("/6 month",$GLOBALS['lim_an'])}}
+            <br>
+            {{strtotime("/1 month",$GLOBALS['lim_an'])}}
+
+
 
           </form>
 
@@ -170,30 +187,32 @@
 
         <?php
 
-          if ($date[0] == NULL && $date[1] == NULL && $date[2] == NULL) {
-		         include '../resources/views/tools/storagecharts.blade.php';
-		         echo '<div id="chartContainer" class="charts"></div>';
-	          }
 
-         if ($date[0] == NULL && $date[1] == NULL && $date[2] != NULL) {
-	 	         include '../resources/views/tools/storagecharts.blade.php';
-		         echo '<div id="chartContainer" class="charts"></div>';
-	          }
 
-	        if ($date[0] == NULL && $date[1] == 'ore' && $date[2] == NULL) {
-	           include '../resources/views/tools/storagechartsbars.blade.php';
+          if ($date[0] == NULL && $date[1] == NULL && $date[9] == NULL) {
+
+             include '../resources/views/tools/storagecharts.blade.php';
+		         echo '<div id="chartContainer" class="charts"></div>';
+
+           }elseif ($date[0] == NULL && $date[1] != NULL && $date[9] == NULL) {
+
+             include '../resources/views/tools/storagechartsbars.blade.php';
+		         echo '<div id="chartContainer" class="charts"></div>';
+
+           }elseif ($date[0] == 'intra' && $date[1] != NULL && $date[9] == NULL) {
+
+             include '../resources/views/tools/storagechartsbarsDi.blade.php';
 	           echo '<div id="chartContainer" class="charts"></div>';
-	          }
 
-            if ($date[0] != NULL) {
-  		         include '../resources/views/tools/storagecharts.blade.php';
-  		         echo '<div id="chartContainer" class="charts"></div>';
-  	          }
+           }elseif ($date[0] == 'iese' && $date[1] != NULL && $date[9] == NULL) {
 
-              if ($date[1] == 'ore') {
-    	           include '../resources/views/tools/storagechartsbars.blade.php';
-    	           echo '<div id="chartContainer" class="charts"></div>';
-    	          }
+             include '../resources/views/tools/storagecharts.blade.php';
+  		       echo '<div id="chartContainer" class="charts"></div>';
+
+           }
+
+
+
        ?>
 
 
