@@ -14,7 +14,7 @@ class TestController extends Controller
      */
     public function index()
     {
-
+ 
         $test = request()->get('type');
 
         return view('myprofil')->with('test', $test);
