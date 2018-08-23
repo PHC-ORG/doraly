@@ -12,27 +12,34 @@
 */
 
 
-Route::resource('reports', 'CamerasController');
+Route::resource('reports', 'CamerasController')->middleware('auth');
 
-Route::resource('profil', 'TestController');
+Route::redirect('/', '/reports' )->middleware('auth');
+
+Route::get('profil', function() {
+    return view('myprofil');
+})->middleware('auth');
 
 
 Route::get('livecams', function () {
     return view('livecamera');
-});
+})->middleware('auth');
 
-Route::get('/', function () {
-    return view('login');
-});
+// Route::get('/', function () {
+//     return view('report');
+// })->middleware('auth');
 
 // Route::get('profil', function () {
 //     return view('myprofil');
 // });
 
-Route::get('welcome', function () {
-    return view('welcome');
-});
+// Route::get('welcome', function () {
+//     return view('welcome');
+// });
+Route::get('/reports/excel', 'CamerasController@excel')->name('reports.excel')->middleware('auth');
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+//Route::get('/home', 'HomeController@index')->name('home');
+//
+// Route::get('/profil', 'HomeController@profil')->name('profil');

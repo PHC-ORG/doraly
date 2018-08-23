@@ -1,12 +1,19 @@
+@guest
+
+@else
+
 <div class="topnav">
 
-  <label class="label-fc">Doraly</label>
+  <img src="../img/doraly.png">
 
   <div class="dropdown">
-    <button class="dropbtn" onclick="myFunction()">NUME</button>
+    <button class="dropbtn" onclick="myFunction()">{{ Auth::user()->name }}</button>
     <div class="dropdown-content" id="myDropdown">
       <a href="profil">Profil</a>
-      <a href="#">Logout</a>
+      <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+      <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+          {{ csrf_field() }}
+      </form>
     </div>
   </div>
 
@@ -14,6 +21,8 @@
   <a href="livecams">Live Cams</a>
 
 </div>
+
+@endguest
 
 <script>
 /* When the user clicks on the button,

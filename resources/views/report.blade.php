@@ -1,32 +1,6 @@
-<!doctype html>
+@extends('layouts.app')
 
-<html lang="{{ app()->getLocale() }}">
-
-    <head>
-
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="stylesheet" href="<?php echo asset('css/style.css')?>" type="text/css">
-
-        <script type="text/javascript" src="/js/canvasjs.js"></script>
-        <script type="text/javascript" src="/js/raports.js"></script>
-
-        <link rel="stylesheet" href="jquery-ui-1.12.1.custom/jquery-ui.css">
-
-        <script src="jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
-        <script src="jquery-ui-1.12.1.custom/jquery-ui.js"></script>
-
-
-        @extends('tools.datepicker')
-
-
-    </head>
-
-    <body>
-
-	    @extends('tools.menu')
+@section('content')
 
         <div class="content-page">
 
@@ -39,7 +13,7 @@
             <br>
             <label class="filtru-l">Type</label>
             <br>
-            <select name="dropType" id="dropType" class="filtru-isb">
+            <select name="dropType" id="dropType" class="filtru-isb-select"  onchange="showfil()">
               <option value="" selected="selected">All</option>
               <option value="ore">Hours</option>
               <option value="zile">Days</option>
@@ -51,23 +25,26 @@
             </select>
             <br>
             <br>
-
+            <div id="area1" style="display:none;">
             <label class="filtru-l">Date:</label>
             <br>
             <label class="labelDP" for="from">from</label>
             <br>
-            <input type="text" id="from" name="from" class="filtru-isb" value="{{$GLOBALS['datadl']}}" autocomplete="off">
+            <input type="text" id="from" name="from" class="filtru-isb-input-date" autocomplete="off">
             <br>
             <label class="labelDP" for="to">to</label>
             <br>
-            <input type="text" id="to" name="to" class="filtru-isb" value="{{$GLOBALS['datal']}}" autocomplete="off">
+            <input type="text" id="to" name="to" class="filtru-isb-input-date" autocomplete="off">
+
+            <div id="area2" style="display:none;">
+
             <br>
             <br>
             <label class="filtru-l">Time:</label>
             <br>
             <label class="filtru-l">from</label>
             <br>
-            <select name="dropTimeFrom" id="dropTimeFrom" class="filtru-isb">
+            <select name="dropTimeFrom" id="dropTimeFrom" class="filtru-isb-select">
               <option value="00:00:00" selected="selected">00:00</option>
               <option value="01:00:00">01:00</option>
               <option value="02:00:00">02:00</option>
@@ -96,7 +73,7 @@
             <br>
             <label class="filtru-l">to</label>
             <br>
-            <select name="dropTimeTo" id="dropTimeTo" class="filtru-isb">
+            <select name="dropTimeTo" id="dropTimeTo" class="filtru-isb-select">
               <option value="00:59:59">00:59</option>
               <option value="01:59:59">01:59</option>
               <option value="02:59:59">02:59</option>
@@ -122,65 +99,58 @@
               <option value="22:59:59">22:59</option>
               <option value="23:59:59" selected="selected">23:59</option>
             </select>
-            <br>
-            <br>
-            <label class="filtru-l">Location</label>
-            <br>
-            <select name="dropLocation" id="dropLocation" class="filtru-isb">
-              <option value="" selected="selected">All</option>
-              <option value="camera1">Camera 1</option>
-              <option value="camera2">Camera 2</option>
-              <option value="camera3">Camera 3</option>
-              <option value="camera4">Camera 4</option>
-              <option value="camera5">Camera 5</option>
-              <option value="camera6">Camera 6</option>
-              <option value="camera7">Camera 7</option>
-              <option value="camera8">Camera 8</option>
-            </select>
+
+            </div>
+
             <br>
             <br>
             <label class="filtru-l">Direction</label>
             <br>
-            <select name="dropDirection" id="dropDirection" class="filtru-isb">
+            <select name="dropDirection" id="dropDirection" class="filtru-isb-select">
               <option value="" selected="selected">All</option>
               <option value="intra">Incoming</option>
               <option value="iese">Outgoing</option>
             </select>
+            <br>
+            <br>
+
+            </div>
+
+            <label class="filtru-l">Location</label>
+            <br>
+            <select name="dropLocation" id="dropLocation" class="filtru-isb-select">
+              <option value="" selected="selected">All</option>
+              <option value="camera1">Pavilion P6</option>
+              <option value="camera2">Pavilion P7</option>
+              <option value="camera3"> - </option>
+              <option value="camera4">BRD</option>
+              <option value="camera5">IDEA BANK</option>
+              <option value="camera6">IDEA</option>
+              <option value="camera7">Pavilion R</option>
+              <option value="camera8">Pavilion ABC</option>
+            </select>
+            <br>
+            <br>
 
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
+            <a href="reports" class="filtru-isb-button2">Reset</a>
             <br>
             <br>
-            <button type="reset" class="filtru-isb">Clear All</button>
+            <button type="reset" class="filtru-isb-button">Clear All</button>
             <br>
             <br>
-            <button type="submit" class="filtru-isb">Select</button>
+            <button type="submit" class="filtru-isb-button">Select</button>
             <br>
-            {{$GLOBALS['intervalcond']}}
             <br>
-            {{$GLOBALS['lim_ore']}}
+          
             <br>
-            {{$GLOBALS['lim_luna']}}
             <br>
-            {{$GLOBALS['lim_an']}}
-            <br>
-            {{strtotime("+1 month",$GLOBALS['lim_an'])}}
-            <br>
-            {{strtotime("+3 month",$GLOBALS['lim_an'])}}
-            <br>
-            {{strtotime("+6 month",$GLOBALS['lim_an'])}}
-            <br>
-            {{$GLOBALS['intervalcond']/strtotime("+1 year",0)}}
-            <br>
-            {{strtotime("/6 month",$GLOBALS['lim_an'])}}
-            <br>
-            {{strtotime("/1 month",$GLOBALS['lim_an'])}}
 
 
 
           </form>
 
-
-
+<a href="{{ route('reports.excel') }}" class="filtru-isb-button3">Export</a>
 
 
 
@@ -220,9 +190,36 @@
 
 </div>
 
+<script>
 
-      @extends('tools.footer')
+  function showfil() {
 
-    </body>
+    var x = document.getElementById("dropType").value;
 
-</html>
+    if (x === "") {
+
+      document.getElementById("area1").style.display='none';
+      document.getElementById("area2").style.display='none';
+
+    }
+    if (x === "ore") {
+
+      document.getElementById("area1").style.display='block';
+      document.getElementById("area2").style.display='block';
+
+    }
+    if (x === "zile" || x === "saptamani" || x === "luni" || x === "trimestre" || x === "semestre" || x === "ani") {
+
+      document.getElementById("area1").style.display='block';
+      document.getElementById("area2").style.display='none';
+
+    }
+
+
+  }
+
+</script>
+
+
+
+@endsection
