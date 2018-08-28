@@ -13,17 +13,21 @@ use App\Camera7;
 use App\Camera8;
 use DB;
 use Illuminate\Support\Facades\Redirect;
-use Excel;
+//use Excel;
+use App\Exports\UsersExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\Controller;
+use App\Exports\CollectionExport;
 
+global $export_var;
 
-
-
-$export_var[] = array( 'From' , 'To' , 'Incoming' , 'Outgoing' );
 $export_in;
 $export_out;
 
+
 class CamerasController extends Controller
 {
+
 
   public function __construct()
   {
@@ -36,6 +40,9 @@ class CamerasController extends Controller
      */
     public function index()
     {
+
+      $export_var[] = array( 'From' , 'To' , 'Incoming_car' , 'Outgoing_car');
+
 
 
 
@@ -63,7 +70,6 @@ class CamerasController extends Controller
 
 
 
-      $export_var[] = array( 'From ' , ' To ' , ' Incoming cars ' , ' Outgoing cars ');
       $export_in[] = array( 'From ' , ' To ' , ' Incoming cars ');
       $export_out[] = array( 'From ' , ' To ' , ' Outgoing cars ');
 
@@ -147,7 +153,10 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming' => $car1[0]->intrate , 'Outgoing' => $car2[0]->iesite);
+          //if($car1[0]->intrate != 0 || $car2[0]->iesite != 0){
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+      //  }
+
 
         }
 
@@ -168,7 +177,8 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming' => $car1[0]->intrate , 'Outgoing' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+
 
         }
 
@@ -189,7 +199,7 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
         }
 
@@ -210,7 +220,7 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
         }
 
@@ -300,7 +310,7 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
         }
 
@@ -315,7 +325,7 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
         }
 
@@ -363,7 +373,7 @@ class CamerasController extends Controller
           $dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
         }
 
@@ -378,7 +388,7 @@ class CamerasController extends Controller
           $dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
         }
 
@@ -418,7 +428,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
           }
 
@@ -433,7 +443,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
           }
 
@@ -470,7 +480,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
           }
 
@@ -486,7 +496,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
           }
 
@@ -525,7 +535,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
           }
 
@@ -541,7 +551,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
           }
 
@@ -579,7 +589,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
 
           }
 
@@ -594,7 +604,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_cars' => $car1[0]->intrate , 'Outgoing_cars' => $car2[0]->iesite);
 
           }
 
@@ -646,21 +656,28 @@ class CamerasController extends Controller
       }
 
 
-
-      $date = [$direction, $type, $location, $dela, $la, $timedela, $timela, $datadela, $datala, $error];
+      $date = [$direction, $type, $location, $dela, $la, $timedela, $timela, $datadela, $datala, $error, $export_var];
         if($date[9] != NULL){return view('report')->with('date',$date);}else{return view('report')->with('date',$date);}
 
     }
 
+    public function export()
+    {
+        return Excel::download(new CollectionExport(), 'export.xlsx');
+    }
+
     function excel()
     {
+      return Excel::download(new CollectionExport(), 'export.xlsx');
 
-        Excel::create('Exportfile' , function($excel) use ($export_var){
-          $excel->setTitle('Exportfile');
-          $excel->shet('Exportfile' , function($sheet) use ($export_var){
-            $sheet->formArray($export_var, null, 'A1', false, false);
-          });
-        })->download('xlsx');
+      //    Excel::create('Exportfile' , function($excel) use ($export_var){
+      //      $excel->setTitle('Exportfile');
+      //      $excel->shet('Exportfile' , function($sheet) use ($export_var){
+      //        $sheet->formArray($export_var, null, 'A1', false, false);
+      //      });
+      //    })->download('xlsx');
+      //
+      // echo "<script>alert('Alegeti un interval de maxim 14 zile pentru tipul Hours!');</script>";
 
      //    $customer_data = DB::table('tbl_customer')->get()->toArray();
      // $customer_array[] = array('Customer Name', 'Address', 'City', 'Postal Code', 'Country');

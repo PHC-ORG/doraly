@@ -8,23 +8,27 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class CollectionExport implements FromCollection, WithHeadings
 {
-   use Exportable;
+    use Exportable;
 
-   public function collection()
-   {
-       return $GLOBALS['$export_var'];
-   }
-
-   public function headings(): array
-   {
-       return [
-           'From',
-           'To',
-           'Incoming',
-           'Outgoing',
-       ];
-   }
+    public function collection()
+    {
 
 
+      return collect([
+            [
+                $GLOBALS['export_var']
+            ]
+        ]);
+    }
+
+    public function headings(): array
+    {
+        return [
+            'From',
+            'To',
+            'Incoming_car',
+            'Outgoing_car',
+        ];
+    }
 
 }

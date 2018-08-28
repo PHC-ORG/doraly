@@ -8,13 +8,13 @@
 
 
 
-          <form action="{{ action('CamerasController@index') }}">
+          <form class="form-fil" action="{{ action('CamerasController@index') }}">
 
             <br>
             <label class="filtru-l">Type</label>
             <br>
             <select name="dropType" id="dropType" class="filtru-isb-select"  onchange="showfil()">
-              <option value="" selected="selected">All</option>
+              <option value="" selected>All</option>
               <option value="ore">Hours</option>
               <option value="zile">Days</option>
               <option value="saptamani">Weeks</option>
@@ -45,7 +45,7 @@
             <label class="filtru-l">from</label>
             <br>
             <select name="dropTimeFrom" id="dropTimeFrom" class="filtru-isb-select">
-              <option value="00:00:00" selected="selected">00:00</option>
+              <option value="00:00:00" selected>00:00</option>
               <option value="01:00:00">01:00</option>
               <option value="02:00:00">02:00</option>
               <option value="03:00:00">03:00</option>
@@ -97,7 +97,7 @@
               <option value="20:59:59">20:59</option>
               <option value="21:59:59">21:59</option>
               <option value="22:59:59">22:59</option>
-              <option value="23:59:59" selected="selected">23:59</option>
+              <option value="23:59:59" selected>23:59</option>
             </select>
 
             </div>
@@ -107,7 +107,7 @@
             <label class="filtru-l">Direction</label>
             <br>
             <select name="dropDirection" id="dropDirection" class="filtru-isb-select">
-              <option value="" selected="selected">All</option>
+              <option value="" selected>All</option>
               <option value="intra">Incoming</option>
               <option value="iese">Outgoing</option>
             </select>
@@ -119,7 +119,7 @@
             <label class="filtru-l">Location</label>
             <br>
             <select name="dropLocation" id="dropLocation" class="filtru-isb-select">
-              <option value="" selected="selected">All</option>
+              <option value="" selected>All</option>
               <option value="camera1">Pavilion P6</option>
               <option value="camera2">Pavilion P7</option>
               <option value="camera3"> - </option>
@@ -142,7 +142,7 @@
             <button type="submit" class="filtru-isb-button">Select</button>
             <br>
             <br>
-          
+            <a href="{{action('CamerasController@export')}}" class="filtru-isb-button3">Export</a>
             <br>
             <br>
 
@@ -150,7 +150,7 @@
 
           </form>
 
-<a href="{{ route('reports.excel') }}" class="filtru-isb-button3">Export</a>
+
 
 
 
@@ -184,6 +184,9 @@
 
 
        ?>
+
+
+
 
 
 

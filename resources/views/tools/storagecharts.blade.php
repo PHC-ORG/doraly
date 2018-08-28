@@ -16,6 +16,7 @@
 
       var chart = new CanvasJS.Chart("chartContainer", {
         theme: "light2",
+        exportEnabled: true,
         animationEnabled: true,
         title: {
           text: "Incoming/Outgoing <?php echo $date[2];?>"

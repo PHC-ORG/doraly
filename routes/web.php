@@ -20,6 +20,9 @@ Route::get('profil', function() {
     return view('myprofil');
 })->middleware('auth');
 
+Route::get('viewusers', function() {
+    return view('viewusers');
+})->name('viewusers')->middleware('auth');
 
 Route::get('livecams', function () {
     return view('livecamera');
@@ -36,7 +39,10 @@ Route::get('livecams', function () {
 // Route::get('welcome', function () {
 //     return view('welcome');
 // });
-Route::get('/reports/excel', 'CamerasController@excel')->name('reports.excel')->middleware('auth');
+//Route::get('/reports/excel', 'CamerasController@excel')->name('reports.excel')->middleware('auth');
+Route::get('reports/excel', 'CamerasController@excel')->name('reports.excel')->middleware('auth');
+
+Route::get('/pagelink', 'CamerasController@export');
 
 Auth::routes();
 

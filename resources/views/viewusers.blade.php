@@ -56,12 +56,41 @@
               <?php endif; ?>
           </div>
 
+          <div class="container-profil-right">
 
-        </div>
+              <?php
+                if(Auth::user()->grad == "admin"){
+                  $users_data = DB::select("SELECT * FROM users WHERE grad != 'administrator' ");
+                }elseif (Auth::user()->grad == "administrator") {
+                  $users_data = DB::table('users')->get();
+                }
 
-      </div>
+              ?>
+              <table class="table table-striped table-bordered">
+                <tr>
+    <td class="td-tw-l">Name</td>
+    <td class="td-tw-c">E-Mail</td>
+    <td class="td-tw-c">Grad</td>
+    <td class="td-tw-c">Data created account</td>
+    <td class="td-tw-r">Data last updated</td>
+   </tr>
+   @foreach($users_data as $user)
+   <tr>
+    <td>{{ $user->name }}</td>
+    <td>{{ $user->email }}</td>
+    <td>{{ $user->grad }}</td>
+    <td>{{ $user->created_at }}</td>
+    <td>{{ $user->updated_at }}</td>
+   </tr>
+   @endforeach
+  </table>
+
+</div>
+
+</div>
 
 
+</div>
 
 
 @endsection

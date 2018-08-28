@@ -115,12 +115,37 @@ html, body {
 }
 
 .footerp{
+  float: right;
   color: white;
-  text-align: right;
+  text-align: center;
   font-size: 12px;
   margin-top: 18px;
   margin-right: 10px;
+  width: 200px;
+}
 
+.footer-status{
+  float: left;
+  color: white;
+  text-align: center;
+  font-size: 12px;
+  margin-top: 18px;
+  margin-right: 10px;
+  display: block;
+  position: relative;
+  width: 60px;
+
+}
+
+.footer-s{
+  float: left;
+  text-align: center;
+  font-size: 12px;
+  margin-top: 18px;
+  margin-right: 10px;
+  display: block;
+  position: relative;
+  width: 40px;
 }
 
 .footer{
@@ -132,7 +157,7 @@ html, body {
   bottom: 0;
   display: block;
   z-index: 5;
-  min-width: 200px;
+  min-width: 400px;
 }
 
 .row {
@@ -143,7 +168,7 @@ html, body {
 
 
 
-.content-page form{
+.content-page .form-fil{
   height: 100%;
   color: white;
   background-color: #333;
@@ -189,6 +214,7 @@ html, body {
     width:150px;
     text-align: center;
     justify-content: center;
+    text-align-last: center;
     border-radius: 25px;
     height: 30px;
   	color: #666;
@@ -293,6 +319,118 @@ html, body {
     left: 400px;
 }
 
+
+.container-profil{
+    float: left;
+    padding: 5%;
+    margin: 5%;
+    min-width: 1500px;
+    min-height: 400px;
+    background: #eee;
+
+}
+
+.form-reg{
+    height: 100%;
+    color: black;
+    background-color: #eee;
+    float: left;
+    padding: 10px 20px;
+    min-width: 400px;
+    max-width: 600px;
+    min-height: 400px;
+}
+
+.container-profil-left{
+    float: left;
+    min-width: 500px;
+}
+
+.container-profil-left table{
+    border-radius: 5px 5px 5px 5px;
+    border: 1,5px solid black;
+    margin: 0;
+    padding: 0;
+
+}
+
+.container-profil-left td{
+    padding: 3px 4px;
+}
+
+.td-l{
+    border-right: 1px solid black;
+    float: right;
+    font-weight: bold;
+}
+
+.td-tw-c{
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
+
+    font-weight: bold;
+}
+
+.td-tw-l{
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    border-spacing: 0;
+    font-weight: bold;
+}
+
+.td-tw-r{
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
+
+    font-weight: bold;
+}
+
+.container-profil-right{
+    float: right;
+    min-width: 750px;
+}
+
+.container-profil-right table{
+    border-radius: 5px 5px 5px 5px;
+    border: 1,5px solid black;
+
+}
+
+.container-profil-right td, tr{
+    padding: 3px 4px;
+}
+
+
+.profil-button1{
+    width:150px;
+    text-align: center;
+    justify-content: center;
+    border-radius: 25px;
+    height: 30px;
+  	color: #ddd;
+    padding: 5px 49px;
+  	border: 0;
+  	margin: 0;
+  	font-weight: bold;
+    text-decoration: none;
+    background:   #333;
+}
+
+.profil-button2{
+    width:150px;
+    text-align: center;
+    justify-content: center;
+    border-radius: 25px;
+    height: 30px;
+  	color: #ddd;
+    padding: 5px 55px;
+  	border: 0;
+  	margin: 0;
+  	font-weight: bold;
+    text-decoration: none;
+    background:   #333;
+}
 
 /*
 
