@@ -4,21 +4,21 @@
 
 <div class="topnav">
 
-  <img src="../img/doraly.png">
+  <a href="reports"><img src="../img/doraly.png"></a>
 
   <div class="dropdown">
     <button class="dropbtn" onclick="myFunction()">{{ Auth::user()->name }}</button>
     <div class="dropdown-content" id="myDropdown">
-      <a href="profil">Profil</a>
-      <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+      <a class="topnav_a" href="profil">Profil</a>
+      <a class="topnav_a" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
       <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
           {{ csrf_field() }}
       </form>
     </div>
   </div>
 
-  <a href="reports">Reports</a>
-  <a href="livecams">Live Cams</a>
+  <a class="topnav_a" href="reports">Reports</a>
+  <a class="topnav_a" href="livecams">Live Cams</a>
 
 </div>
 

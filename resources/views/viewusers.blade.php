@@ -24,17 +24,17 @@
                 </tr>
 
                 <tr>
-                  <td class="td-l">Grad</td>
+                  <td class="td-l">Rights</td>
                   <td>{{ Auth::user()->grad }}</td>
                 </tr>
 
                 <tr>
-                  <td class="td-l">Data created account</td>
+                  <td class="td-l">Created at</td>
                   <td>{{ Auth::user()->created_at }}</td>
                 </tr>
 
                 <tr>
-                  <td class="td-l">Data last update</td>
+                  <td class="td-l">Last updated at</td>
                   <td>{{ Auth::user()->updated_at }}</td>
                 </tr>
 
@@ -70,9 +70,9 @@
                 <tr>
     <td class="td-tw-l">Name</td>
     <td class="td-tw-c">E-Mail</td>
-    <td class="td-tw-c">Grad</td>
-    <td class="td-tw-c">Data created account</td>
-    <td class="td-tw-r">Data last updated</td>
+    <td class="td-tw-c">Rights</td>
+    <td class="td-tw-c">Created at</td>
+    <td class="td-tw-r">Last updated at</td>
    </tr>
    @foreach($users_data as $user)
    <tr>
@@ -81,6 +81,7 @@
     <td>{{ $user->grad }}</td>
     <td>{{ $user->created_at }}</td>
     <td>{{ $user->updated_at }}</td>
+    <td>Delete account</td>
    </tr>
    @endforeach
   </table>

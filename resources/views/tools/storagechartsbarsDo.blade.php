@@ -1,3 +1,9 @@
+<?php
+$aux = array();
+
+ ?>
+
+
 <script>
 window.onload = function () {
 
@@ -6,7 +12,7 @@ var chart = new CanvasJS.Chart("chartContainer", {
 	animationEnabled: true,
 	zoomEnabled: true,
 	title:{
-		text: "Total cars by years"
+		text: "Total cars by <?php echo $date[12];?>"
 	},
 	subtitles: [{
 		text: "Click Legend to Hide or Unhide Data Series"
@@ -33,8 +39,16 @@ var chart = new CanvasJS.Chart("chartContainer", {
 		name: "Outgoing",
 		showInLegend: true,
 		yValueFormatString: "#0 cars",
+		dataPoints: <?php echo json_encode($aux, JSON_NUMERIC_CHECK); ?>
+	},
+	{
+		type: "column",
+		name: "Outgoing",
+		showInLegend: true,
+		yValueFormatString: "#0 cars",
 		dataPoints: <?php echo json_encode($GLOBALS['dataPoints'], JSON_NUMERIC_CHECK); ?>
-	}
+
+	}]
 });
 chart.render();
 

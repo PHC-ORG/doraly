@@ -2,6 +2,8 @@
 
 @section('content')
 
+
+
         <div class="content-page">
 
 
@@ -142,8 +144,14 @@
             <button type="submit" class="filtru-isb-button">Select</button>
             <br>
             <br>
-            <a href="{{action('CamerasController@export')}}" class="filtru-isb-button3">Export</a>
-            <br>
+            <!-- <a href="{{action('CamerasController@store')}}" class="filtru-isb-button3">Export</a> -->
+            <!-- <br>
+            <br> -->
+            <div>
+              <input type="checkbox" id="excel" name="excel"
+               value="scales"  />
+               <label for="scales">Export Excel</label>
+             </div>
             <br>
 
 
@@ -155,8 +163,8 @@
 
 
 
-        <?php
 
+        <?php
 
 
           if ($date[0] == NULL && $date[1] == NULL && $date[9] == NULL) {
@@ -176,11 +184,10 @@
 
            }elseif ($date[0] == 'iese' && $date[1] != NULL && $date[9] == NULL) {
 
-             include '../resources/views/tools/storagecharts.blade.php';
+             include '../resources/views/tools/storagechartsbarsDo.blade.php';
   		       echo '<div id="chartContainer" class="charts"></div>';
 
            }
-
 
 
        ?>
@@ -220,6 +227,11 @@
 
 
   }
+
+   function functie() {
+
+
+   }
 
 </script>
 

@@ -17,22 +17,23 @@ use Illuminate\Support\Facades\Redirect;
 use App\Exports\UsersExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
-use App\Exports\CollectionExport;
+use App\Exports\BladeExport;
 
-global $export_var;
 
-$export_in;
-$export_out;
 
 
 class CamerasController extends Controller
 {
 
 
-  public function __construct()
-  {
-      $this->middleware('auth');
-  }
+  private $x;
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+
     /**
      * Display a listing of the resource.
      *
@@ -41,10 +42,13 @@ class CamerasController extends Controller
     public function index()
     {
 
+      $this->x ='22';
+
       $export_var[] = array( 'From' , 'To' , 'Incoming_car' , 'Outgoing_car');
 
 
-
+      $export_in;
+      $export_out;
 
       $datadela = request()->get('from');
       $datala = request()->get('to');
@@ -53,6 +57,85 @@ class CamerasController extends Controller
       $timela = request()->get('dropTimeTo');
       $type = request()->get('dropType');
       $location = request()->get('dropLocation');
+      $excelTick = request()->get('excel');
+
+
+
+      if($direction == "intra")
+      {
+        $directie = "Incoming cars";
+      }
+      elseif ($direction == "iese") {
+        $directie = "Outgoing cars";
+      }
+      else {
+        $directie = "-";
+      }
+
+      if($location != NULL){
+
+      if($location == "camera1")
+      {
+         $locatie = "Pavilion P6";
+      }
+      elseif ($location == "camera2") {
+        $locatie = "Pavilion P7";
+      }
+      elseif ($location == "camera3") {
+        $locatie = "Camera 3";
+      }
+      elseif ($location == "camera4") {
+        $locatie = "BRD";
+      }
+      elseif ($location == "camera5") {
+        $locatie = "IDEA BANK";
+      }
+      elseif ($location == "camera6") {
+        $locatie = "IDEA";
+      }
+      elseif ($location == "camera7") {
+        $locatie = "DCNEU";
+      }
+      elseif ($location == "camera8") {
+        $locatie = "Pavilion ABC";
+      }
+      }
+      else {
+        $locatie = "Total";
+      }
+
+
+      if($type != NULL)
+      {
+        if($type == "ore")
+        {
+          $tip = "hours";
+        }
+        elseif ($type == "zile") {
+          $tip = "days";
+        }
+        elseif ($type == "saptamani") {
+          $tip = "weeks";
+        }
+        elseif ($type == "luni") {
+          $tip = "months";
+        }
+        elseif ($type == "trimestre") {
+          $tip = "trimesters";
+        }
+        elseif ($type == "semestre") {
+          $tip = "semesters";
+        }
+        elseif ($type == "ani") {
+          $tip = "years";
+        }
+
+
+
+      }else{
+        $tip = "nada";
+      }
+
 
       global $datadl;
       global $datal;
@@ -72,7 +155,6 @@ class CamerasController extends Controller
 
       $export_in[] = array( 'From ' , ' To ' , ' Incoming cars ');
       $export_out[] = array( 'From ' , ' To ' , ' Outgoing cars ');
-
 
 
 
@@ -153,9 +235,8 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          //if($car1[0]->intrate != 0 || $car2[0]->iesite != 0){
           $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
-      //  }
+
 
 
         }
@@ -177,7 +258,7 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
 
         }
@@ -199,7 +280,7 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
         }
 
@@ -220,11 +301,14 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
         }
 
       }elseif($type == "ore" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+
+
 
         for($i=0;$i<$nr_ore_interval;$i++){
 
@@ -237,7 +321,16 @@ class CamerasController extends Controller
           $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+(($i-($count_h*$interval_h))*$ora_const)+($zi_const*$count_h));
           $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($datacount1)+($ora_const-1));
           $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
-          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+
+
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+        }
+
+
 
       }elseif($type == "ore" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && $timedela != NULL && $timela != NULL){
 
@@ -252,7 +345,12 @@ class CamerasController extends Controller
           $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+(($i-($count_h*$interval_h))*$ora_const)+($zi_const*$count_h));
           $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($datacount1)+($ora_const-1));
           $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
-          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+        }
 
       }elseif($type == "ore" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
@@ -267,7 +365,11 @@ class CamerasController extends Controller
           $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+(($i-($count_h*$interval_h))*$ora_const)+($zi_const*$count_h));
           $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($datacount1)+($ora_const-1));
           $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+        }
 
       }elseif($type == "ore" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && $timedela != NULL && $timela != NULL){
 
@@ -282,8 +384,31 @@ class CamerasController extends Controller
           $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+(($i-($count_h*$interval_h))*$ora_const)+($zi_const*$count_h));
           $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($datacount1)+($ora_const-1));
           $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);
 
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+        }
+
+
+      }elseif($type == "ore" && $direction != NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_ore_interval;$i++){
+
+          if (($i-($count_h*$interval_h)) == $interval_h) {
+
+            $count_h ++;
+
+          }
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+(($i-($count_h*$interval_h))*$ora_const)+($zi_const*$count_h));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($datacount1)+($ora_const-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+          }
       }
 
 
@@ -310,7 +435,7 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
         }
 
@@ -325,7 +450,7 @@ class CamerasController extends Controller
     			$dataPoints1[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
         }
 
@@ -335,8 +460,12 @@ class CamerasController extends Controller
 
           $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const));
           $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const+$zi_const-1));
-          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
-          $dataPoints[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+        }
 
       }elseif($type == "zile" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
@@ -345,7 +474,26 @@ class CamerasController extends Controller
           $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const));
           $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const+$zi_const-1));
           $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-          $dataPoints[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+          $dataPoints[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+        }
+
+      }elseif($type == "zile" && $direction != NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+        for($i=0;$i<$nr_zile_interval;$i++){
+
+          $datacount1 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const));
+          $datacount2 = date( 'Y-m-d H:i:s' ,strtotime($dela)+($i*$zi_const+$zi_const-1));
+          $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+          $dataPoints[$i] = array("label"=> date('d/m/Y',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+        }
 
       }
 
@@ -373,7 +521,7 @@ class CamerasController extends Controller
           $dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
         }
 
@@ -388,7 +536,7 @@ class CamerasController extends Controller
           $dataPoints1[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car1[0]->intrate);
           $dataPoints2[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
         }
 
@@ -399,7 +547,11 @@ class CamerasController extends Controller
           $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i week", strtotime($dela)));
           $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week",strtotime("+$i week", strtotime($dela)-1)));
           $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
-          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+        }
 
       }elseif($type == "saptamani" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
@@ -408,7 +560,13 @@ class CamerasController extends Controller
           $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i week", strtotime($dela)));
           $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 week",strtotime("+$i week", strtotime($dela)-1)));
           $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);}
+          $dataPoints[$i] = array("label"=> date('d/m/Y H:i',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+
+          $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+        }
 
       }
 
@@ -428,7 +586,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
           }
 
@@ -443,7 +601,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
           }
 
@@ -454,7 +612,12 @@ class CamerasController extends Controller
             $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i month", strtotime($dela)));
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month",strtotime("+$i month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
-            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
 
         }elseif($type == "luni" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
@@ -463,7 +626,12 @@ class CamerasController extends Controller
             $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i month", strtotime($dela)));
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 month",strtotime("+$i month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
 
         }
 
@@ -477,10 +645,10 @@ class CamerasController extends Controller
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month",strtotime("+$j month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
-      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
-            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car2[0]->iesite);
 
-            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
           }
 
@@ -493,10 +661,10 @@ class CamerasController extends Controller
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month",strtotime("+$j month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
-            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car2[0]->iesite);
 
-            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
           }
 
@@ -508,7 +676,12 @@ class CamerasController extends Controller
             $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month",strtotime("+$j month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
-            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
 
         }elseif($type == "trimestre" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
@@ -518,9 +691,31 @@ class CamerasController extends Controller
             $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month",strtotime("+$j month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
 
         }
+        elseif($type == "trimestre" && $direction != NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_3month_interval;$i++){
+
+            $j = 3 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+3 month",strtotime("+$j month", strtotime($dela)-1)));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
+
+        }
+
 
 
         if($type == "semestre" && $direction == NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
@@ -532,10 +727,10 @@ class CamerasController extends Controller
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month",strtotime("+$j month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND timestampCar between '$datacount1' and '$datacount2' ");
-      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
-            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car2[0]->iesite);
 
-            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
           }
 
@@ -548,10 +743,10 @@ class CamerasController extends Controller
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month",strtotime("+$j month", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
-            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
+      			$dataPoints1[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car1[0]->intrate);
+            $dataPoints2[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car2[0]->iesite);
 
-            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
           }
 
@@ -563,7 +758,12 @@ class CamerasController extends Controller
             $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month",strtotime("+$j month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
-            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
 
         }elseif($type == "semestre" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
@@ -573,7 +773,27 @@ class CamerasController extends Controller
             $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month",strtotime("+$j month", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
+
+        }elseif($type == "semestre" && $direction != NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_6month_interval;$i++){
+
+            $j = 6 * $i;
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$j month", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+6 month",strtotime("+$j month", strtotime($dela)-1)));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('M/Y',strtotime($datacount1))." - ".date('M/Y',strtotime($datacount2)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
 
         }
 
@@ -589,7 +809,7 @@ class CamerasController extends Controller
       			$dataPoints1[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_car' => $car1[0]->intrate , 'Outgoing_car' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
           }
 
@@ -597,14 +817,14 @@ class CamerasController extends Controller
 
           for($i=0;$i<$nr_year_interval;$i++){
 
-            $$datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));
             $car1 = DB::select("SELECT COUNT(*) as intrate FROM cameraview WHERE directieCar = 'intra' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
             $car2 = DB::select("SELECT COUNT(*) as iesite FROM cameraview WHERE directieCar = 'iese' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
       			$dataPoints1[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car1[0]->intrate);
             $dataPoints2[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car2[0]->iesite);
 
-            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming_cars' => $car1[0]->intrate , 'Outgoing_cars' => $car2[0]->iesite);
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , 'Incoming cars' => $car1[0]->intrate , 'Outgoing cars' => $car2[0]->iesite);
 
           }
 
@@ -615,7 +835,12 @@ class CamerasController extends Controller
             $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND timestampCar between '$datacount1' and '$datacount2' ");
-            $dataPoints[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+            $dataPoints[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
 
         }elseif($type == "ani" && $direction != NULL && $location != NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
 
@@ -625,7 +850,27 @@ class CamerasController extends Controller
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));$datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
             $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));
             $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND locatieCar = '$location' AND timestampCar between '$datacount1' and '$datacount2' ");
-            $dataPoints[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car[0]->ii);}
+            $dataPoints[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
+
+        }elseif($type == "ani" && $direction != NULL && $location == NULL && $datadela != NULL && $datala != NULL && (($timedela == NULL && $timela == NULL) || ($timedela == "00:00:00" && $timela == "23:59:59"))){
+
+          for($i=0;$i<$nr_year_interval;$i++){
+
+            $datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));$datacount1 = date( 'Y-m-d H:i:s' ,strtotime("+$i year", strtotime($dela)));
+            $datacount2 = date( 'Y-m-d H:i:s' ,strtotime("+1 year",strtotime("+$i year", strtotime($dela)-1)));
+            $car = DB::select("SELECT COUNT(*) as ii FROM cameraview WHERE directieCar = '$direction' AND  timestampCar between '$datacount1' and '$datacount2' ");
+            $dataPoints[$i] = array("label"=> date('Y',strtotime($datacount1)), "y"=> $car[0]->ii);
+
+            $export_var[$i] = array( 'From' => $datacount1 , 'To' => $datacount2 , "$directie" => $car[0]->ii);
+
+
+          }
 
         }
 
@@ -640,7 +885,7 @@ class CamerasController extends Controller
         $intrate = $car1[0]->intrate;
         $iesite = $car2[0]->iesite;
 
-
+        $export_var[] = array ("From" => "-", "To" => "-", "Incoming cars" => $intrate, "Outgoing cars" => $iesite);
 
       }
 
@@ -653,65 +898,96 @@ class CamerasController extends Controller
         $intrate = $car1[0]->intrate;
         $iesite = $car2[0]->iesite;
 
+        $export_var[] = array ("From" => "-", "To" => "-", "Incoming cars" => $intrate, "Outgoing cars" => $iesite);
+
       }
 
 
-      $date = [$direction, $type, $location, $dela, $la, $timedela, $timela, $datadela, $datala, $error, $export_var];
-        if($date[9] != NULL){return view('report')->with('date',$date);}else{return view('report')->with('date',$date);}
+      $date = [$direction, $type, $location, $dela, $la, $timedela, $timela, $datadela, $datala, $error, $export_var, $locatie, $tip];
+
+
+      // if($GLOBALS["testBool"]){
+       //
+      // $GLOBALS["testBool"] = false;
+      // }
+       //$this->export($export_var);
+       if($excelTick)
+       {
+       return Excel::download(new BladeExport($export_var), 'export.xlsx');
+     } else {
+
+
+        if($date[9] != NULL) {
+          return view('report')->with('date',$date);
+        } else {
+          return view('report')->with('date',$date);
+        }
+      }
+
+
+
 
     }
 
+    //
+    //
+    //
     public function export()
     {
-        return Excel::download(new CollectionExport(), 'export.xlsx');
+      //echo "<script type='text/javascript'>alert('hheh');</script>";
+       return Excel::download(new BladeExport($data), 'export.xlsx');
+
     }
 
-    function excel()
-    {
-      return Excel::download(new CollectionExport(), 'export.xlsx');
+    //
+    //  public function excel()
+    // {
+    //   zzzreturn Excel::download(new CollectionExport(), 'export.xlsx');
+    //
+    //   //    Excel::create('Exportfile' , function($excel) use ($export_var){
+    //   //      $excel->setTitle('Exportfile');
+    //   //      $excel->shet('Exportfile' , function($sheet) use ($export_var){
+    //   //        $sheet->formArray($export_var, null, 'A1', false, false);
+    //   //      });
+    //   //    })->download('xlsx');
+    //   //
+    //   // echo "<script>alert('Alegeti un interval de maxim 14 zile pentru tipul Hours!');</script>";
+    //
+    //  //    $customer_data = DB::table('tbl_customer')->get()->toArray();
+    //  // $customer_array[] = array('Customer Name', 'Address', 'City', 'Postal Code', 'Country');
+    //  // foreach($customer_data as $customer)
+    //  // {
+    //  //  $customer_array[] = array(
+    //  //   'Customer Name'  => $customer->CustomerName,
+    //  //   'Address'   => $customer->Address,
+    //  //   'City'    => $customer->City,
+    //  //   'Postal Code'  => $customer->PostalCode,
+    //  //   'Country'   => $customer->Country
+    //  //  );
+    //  // }
+    //  // Excel::create('Customer Data', function($excel) use ($customer_array){
+    //  //  $excel->setTitle('Customer Data');
+    //  //  $excel->sheet('Customer Data', function($sheet) use ($customer_array){
+    //  //   $sheet->fromArray($customer_array, null, 'A1', false, false);
+    //  //  });
+    //  // })->download('xlsx');
+    //
+    //  // $products = Product::select('name','description','price')->get()->toArray();
+    //  //    return \Excel::create('Products', function($excel) use ($products) {
+    //  //        $excel->sheet('Product Details', function($sheet) use ($products)
+    //  //        {
+    //  //            $sheet->fromArray($products);
+    //  //        });
+    //  //    })->download('xlsx');
+    //  //
+    //  //    $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
+    //  //
+    //  // return Excel::download(new CollectionExport, 'export.xlsx');
+    //
+    //
 
-      //    Excel::create('Exportfile' , function($excel) use ($export_var){
-      //      $excel->setTitle('Exportfile');
-      //      $excel->shet('Exportfile' , function($sheet) use ($export_var){
-      //        $sheet->formArray($export_var, null, 'A1', false, false);
-      //      });
-      //    })->download('xlsx');
-      //
-      // echo "<script>alert('Alegeti un interval de maxim 14 zile pentru tipul Hours!');</script>";
 
-     //    $customer_data = DB::table('tbl_customer')->get()->toArray();
-     // $customer_array[] = array('Customer Name', 'Address', 'City', 'Postal Code', 'Country');
-     // foreach($customer_data as $customer)
-     // {
-     //  $customer_array[] = array(
-     //   'Customer Name'  => $customer->CustomerName,
-     //   'Address'   => $customer->Address,
-     //   'City'    => $customer->City,
-     //   'Postal Code'  => $customer->PostalCode,
-     //   'Country'   => $customer->Country
-     //  );
      // }
-     // Excel::create('Customer Data', function($excel) use ($customer_array){
-     //  $excel->setTitle('Customer Data');
-     //  $excel->sheet('Customer Data', function($sheet) use ($customer_array){
-     //   $sheet->fromArray($customer_array, null, 'A1', false, false);
-     //  });
-     // })->download('xlsx');
-
-     // $products = Product::select('name','description','price')->get()->toArray();
-     //    return \Excel::create('Products', function($excel) use ($products) {
-     //        $excel->sheet('Product Details', function($sheet) use ($products)
-     //        {
-     //            $sheet->fromArray($products);
-     //        });
-     //    })->download('xlsx');
-     //
-     //    $export_var[] = array( 'From ' => $datacount1 , ' To ' => $datacount2 , ' Incoming cars ' => $car1[0]->intrate , ' Outgoing cars ' => $car2[0]->iesite);
-     //
-     // return Excel::download(new CollectionExport, 'export.xlsx');
-
-
-    }
 
     /**
      * Show the form for creating a new resource.
@@ -720,7 +996,8 @@ class CamerasController extends Controller
      */
     public function create()
     {
-        //
+        //return "Sunt metoda care creeaza";
+
     }
 
     /**
@@ -732,6 +1009,8 @@ class CamerasController extends Controller
     public function store(Request $request)
     {
         //
+
+
     }
 
     /**

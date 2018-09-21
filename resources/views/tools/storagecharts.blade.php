@@ -19,7 +19,7 @@
         exportEnabled: true,
         animationEnabled: true,
         title: {
-          text: "Incoming/Outgoing <?php echo $date[2];?>"
+          text: "Incoming/Outgoing <?php echo $date[11];?>"
         },
         data: [{
           type: "doughnut",

@@ -40,9 +40,9 @@ Route::get('livecams', function () {
 //     return view('welcome');
 // });
 //Route::get('/reports/excel', 'CamerasController@excel')->name('reports.excel')->middleware('auth');
-Route::get('reports/excel', 'CamerasController@excel')->name('reports.excel')->middleware('auth');
+//Route::get('reports/excel', 'CamerasController@excel')->name('reports.excel')->middleware('auth');
 
-Route::get('/pagelink', 'CamerasController@export');
+Route::get('/export', 'CamerasController@export')->middleware('auth');
 
 Auth::routes();
 

@@ -23,13 +23,18 @@ html, body {
 
 /* Style the links inside the navigation bar */
 .topnav a{
-    float: right;
-    color: #f2f2f2;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-size: 17px;
-    position: relative;
+
+}
+
+.topnav_a{
+  float: right;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+  position: relative;
+
 }
 
 .topnav img{
@@ -139,13 +144,13 @@ html, body {
 
 .footer-s{
   float: left;
-  text-align: center;
+  text-align: left;
   font-size: 12px;
   margin-top: 18px;
-  margin-right: 10px;
+  margin-right: auto;
   display: block;
   position: relative;
-  width: 40px;
+  width: 150px;
 }
 
 .footer{

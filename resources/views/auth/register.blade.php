@@ -104,17 +104,17 @@
                           </tr>
 
                           <tr>
-                            <td class="td-l">Grad</td>
+                            <td class="td-l">Rights</td>
                             <td>{{ Auth::user()->grad }}</td>
                           </tr>
 
                           <tr>
-                            <td class="td-l">Data created account</td>
+                            <td class="td-l">Created at</td>
                             <td>{{ Auth::user()->created_at }}</td>
                           </tr>
 
                           <tr>
-                            <td class="td-l">Data last update</td>
+                            <td class="td-l">Last updated at</td>
                             <td>{{ Auth::user()->updated_at }}</td>
                           </tr>
 

@@ -6,7 +6,7 @@ var chart = new CanvasJS.Chart("chartContainer", {
 	animationEnabled: true,
 	zoomEnabled: true,
 	title:{
-		text: "Total cars by years"
+		text: "Total cars by <?php echo $date[12];?>"
 	},
 	subtitles: [{
 		text: "Click Legend to Hide or Unhide Data Series"
